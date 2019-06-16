@@ -95,19 +95,19 @@ func (p *OneLoginProvider) GetSignInURL(state string) string {
 // https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokens
 func (p *OneLoginProvider) Refresh(ctx context.Context, s *sessions.SessionState) (*sessions.SessionState, error) {
 	if s.RefreshToken == "" {
-		return nil, errors.New("identity/microsoft: missing refresh token")
+		return nil, errors.New("identity/onelogin: missing refresh token")
 	}
 	t := oauth2.Token{RefreshToken: s.RefreshToken}
 	newToken, err := p.oauth.TokenSource(ctx, &t).Token()
 	if err != nil {
-		log.Error().Err(err).Msg("identity/microsoft: refresh failed")
+		log.Error().Err(err).Msg("identity/onelogin: refresh failed")
 		return nil, err
 	}
 	s.AccessToken = newToken.AccessToken
 	s.RefreshDeadline = newToken.Expiry.Truncate(time.Second)
 	s.Groups, err = p.UserGroups(ctx, s.AccessToken)
 	if err != nil {
-		log.Error().Err(err).Msg("identity/microsoft: refresh failed")
+		log.Error().Err(err).Msg("identity/onelogin: refresh failed")
 		return nil, err
 	}
 	return s, nil

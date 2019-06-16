@@ -89,6 +89,7 @@ type Options struct {
 	ClientSecret   string   `mapstructure:"idp_client_secret"`
 	Provider       string   `mapstructure:"idp_provider"`
 	ProviderURL    string   `mapstructure:"idp_provider_url"`
+	GroupURL       string   `mapstructure:"idp_group_url"`
 	Scopes         []string `mapstructure:"idp_scopes"`
 	ServiceAccount string   `mapstructure:"idp_service_account"`
 
@@ -402,7 +403,7 @@ func (o *Options) Checksum() string {
 
 	if err != nil {
 		log.Warn().Msg("could not calculate Option checksum")
-		return "no checksum availablle"
+		return "no checksum available"
 	}
 	return fmt.Sprintf("%x", hash)
 }
