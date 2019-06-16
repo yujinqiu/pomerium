@@ -87,6 +87,7 @@ type Provider struct {
 	ClientID     string
 	ClientSecret string
 	ProviderURL  string
+	GroupURL     string
 	Scopes       []string
 
 	// Some providers, such as google, require additional remote api calls to retrieve
