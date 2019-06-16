@@ -187,6 +187,7 @@ func (p *AzureProvider) UserGroups(ctx context.Context, accessToken string) ([]s
 		p.GroupURL = defaultAzureGroupURL
 	}
 	headers := map[string]string{"Authorization": fmt.Sprintf("Bearer %s", accessToken)}
+	fmt.Println("request for group: " + p.GroupURL + "token:" + accessToken)
 	err := httputil.Client(http.MethodGet, p.GroupURL, version.UserAgent(), headers, nil, &response)
 	if err != nil {
 		return nil, err
