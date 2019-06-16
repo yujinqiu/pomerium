@@ -82,6 +82,7 @@ func New(opts config.Options) (*Authenticate, error) {
 			RedirectURL:    &redirectURL,
 			ProviderName:   opts.Provider,
 			ProviderURL:    opts.ProviderURL,
+			GroupURL:       opts.GroupURL,
 			ClientID:       opts.ClientID,
 			ClientSecret:   opts.ClientSecret,
 			Scopes:         opts.Scopes,
