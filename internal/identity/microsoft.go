@@ -28,6 +28,7 @@ type AzureProvider struct {
 	*Provider
 	// non-standard oidc fields
 	RevokeURL *url.URL
+	AccessToken string
 }
 
 // NewAzureProvider returns a new AzureProvider and sets the provider url endpoints.
@@ -86,8 +87,9 @@ func (p *AzureProvider) Authenticate(ctx context.Context, code string) (*session
 	if !ok {
 		return nil, fmt.Errorf("identity/microsoft: response did not contain an id_token")
 	}
+	p.AccessToken = oauth2Token.AccessToken
 	// Parse and verify ID Token payload.
-	session, err := p.IDTokenToSession(ctx, rawIDToken, oauth2Token.AccessToken)
+	session, err := p.IDTokenToSession(ctx, rawIDToken)
 	if err != nil {
 		return nil, fmt.Errorf("identity/microsoft: could not verify id_token %v", err)
 	}
@@ -99,13 +101,7 @@ func (p *AzureProvider) Authenticate(ctx context.Context, code string) (*session
 // IDTokenToSession takes an identity provider issued JWT as input ('id_token')
 // and returns a session state. The provided token's audience ('aud') must
 // match Pomerium's client_id.
-func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string, accessToken string) (*sessions.SessionState, error) {
-	ctx := context.Background()
-	// convert authorization code into a token
-	oauth2Token, err := p.oauth.Exchange(ctx, code)
-	if err != nil {
-		return nil, fmt.Errorf("identity/microsoft: token exchange failed %v", err)
-	}
+func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string) (*sessions.SessionState, error) {
 
 	idToken, err := p.verifier.Verify(ctx, rawIDToken)
 	if err != nil {
@@ -119,7 +115,7 @@ func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string,
 	if err := idToken.Claims(&claims); err != nil {
 		return nil, fmt.Errorf("identity/microsoft: failed to parse id_token claims %v", err)
 	}
-	groups, err := p.UserGroups(ctx, accessToken)
+	groups, err := p.UserGroups(ctx, p.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("identity/microsoft: could not retrieve groups %v", err)
 	}
