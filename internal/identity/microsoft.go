@@ -100,6 +100,13 @@ func (p *AzureProvider) Authenticate(ctx context.Context, code string) (*session
 // and returns a session state. The provided token's audience ('aud') must
 // match Pomerium's client_id.
 func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string) (*sessions.SessionState, error) {
+	ctx := context.Background()
+	// convert authorization code into a token
+	oauth2Token, err := p.oauth.Exchange(ctx, code)
+	if err != nil {
+		return nil, fmt.Errorf("identity/microsoft: token exchange failed %v", err)
+	}
+
 	idToken, err := p.verifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		return nil, fmt.Errorf("identity/microsoft: could not verify id_token %v", err)
@@ -112,7 +119,7 @@ func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string)
 	if err := idToken.Claims(&claims); err != nil {
 		return nil, fmt.Errorf("identity/microsoft: failed to parse id_token claims %v", err)
 	}
-	groups, err := p.UserGroups(ctx, idToken.AccessToken)
+	groups, err := p.UserGroups(ctx, oauth2Token.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("identity/microsoft: could not retrieve groups %v", err)
 	}
