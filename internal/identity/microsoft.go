@@ -112,7 +112,7 @@ func (p *AzureProvider) IDTokenToSession(ctx context.Context, rawIDToken string)
 	if err := idToken.Claims(&claims); err != nil {
 		return nil, fmt.Errorf("identity/microsoft: failed to parse id_token claims %v", err)
 	}
-	groups, err := p.UserGroups(ctx, claims.Email)
+	groups, err := p.UserGroups(ctx, idToken.AccessToken)
 	if err != nil {
 		return nil, fmt.Errorf("identity/microsoft: could not retrieve groups %v", err)
 	}
